@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.example.gamepilot11.GameView;
 import com.example.gamepilot11.R;
 
 public class Flight {
@@ -16,11 +17,30 @@ public class Flight {
 
     private boolean isGoingUp = false; // направление движения самолёта (true - вверх, false - вниз)
 
+    private Bitmap shoot1, shoot2, shoot3, shoot4, shoot5; // поле растровых изображений самолёта в момент атаки астероидов
+    private int toShoot= 0; // поле выпуска снаряда по астероиду (0 - не выпускается, 1 - выпускается)
+    private int shootCounter = 1; // счётчик выпуска снарядов
+    private GameView gameView; // поле представления игры
+    private Bitmap planeShotDown; // поле растрового изображения подбитового самолёта
+
     // конструктор (размеры по оси X и Y, ресурс)
-    public Flight(int screenX, int screenY, Resources resources) {
+    public Flight(GameView gameView, int screenX, int screenY, Resources resources) {
+
+        this.gameView = gameView;
+
         // считывание изображений летящих самолётов из ресурсов
         flight1 = BitmapFactory.decodeResource(resources, R.drawable.plane_fly1);
         flight2 = BitmapFactory.decodeResource(resources, R.drawable.plane_fly2);
+
+        // считывание изображения подбитого самолёта из ресурсов
+        planeShotDown = BitmapFactory.decodeResource(resources, R.drawable.plane_shot_down);
+
+        // считывание изображений атакующих самолётов из ресурсов
+        shoot1 = BitmapFactory.decodeResource(resources, R.drawable.plane_shoot1);
+        shoot2 = BitmapFactory.decodeResource(resources, R.drawable.plane_shoot2);
+        shoot3 = BitmapFactory.decodeResource(resources, R.drawable.plane_shoot3);
+        shoot4 = BitmapFactory.decodeResource(resources, R.drawable.plane_shoot4);
+        shoot5 = BitmapFactory.decodeResource(resources, R.drawable.plane_shoot5);
 
         // инициализация размеров самолёта с масштабированием
         width = flight1.getWidth() / 3;
@@ -34,13 +54,44 @@ public class Flight {
         flight1 = Bitmap.createScaledBitmap(flight1, width, height, false);
         flight2 = Bitmap.createScaledBitmap(flight2, width, height, false);
 
+        // изменение размера изображения подбитого самолёта, где width и height соответственно ширина и высота
+        planeShotDown = Bitmap.createScaledBitmap(planeShotDown, width, height, false);
+        // изменение размера изображения снаряда, где width и height соответственно ширина и высота
+        shoot1 = Bitmap.createScaledBitmap(shoot1, width, height, false);
+        shoot2 = Bitmap.createScaledBitmap(shoot2, width, height, false);
+        shoot3 = Bitmap.createScaledBitmap(shoot3, width, height, false);
+        shoot4 = Bitmap.createScaledBitmap(shoot4, width, height, false);
+        shoot5 = Bitmap.createScaledBitmap(shoot5, width, height, false);
+
         // начальное местоположение полёта
         y = screenY / 2; // посередине оси Y
         x = screenX / 21; // практически вначале оси X
     }
 
-    // метод задания очерёдности переключения изображений полёта
+    // метод задания очерёдности переключения изображений самолёта при разных условиях
     public Bitmap getFlight() {
+
+        // задание очереди переключения изображений выпуска снаряда
+        if (toShoot != 0) {
+            if (shootCounter == 1) {
+                shootCounter++;
+                return shoot1;
+            } else if (shootCounter == 2) {
+                shootCounter++;
+                return shoot2;
+            } else if (shootCounter == 3) {
+                shootCounter++;
+                return shoot3;
+            } else if (shootCounter == 4) {
+                shootCounter++;
+                return shoot4;
+            } else {
+                shootCounter = 1;
+                toShoot--; // задание флага обрыва очереди переключения изображений
+                gameView.newBullet(); // метод выпуска снаряда по астероиду
+                return shoot5;
+            }
+        }
 
         if (wingCounter == 0) {
             wingCounter++;
