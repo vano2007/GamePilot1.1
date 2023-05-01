@@ -3,6 +3,7 @@ package com.example.gamepilot11.entity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 
 import com.example.gamepilot11.R;
 
@@ -29,6 +30,12 @@ public class Bullet {
 
         // изменение размера изображения снаряда, где width и height соответственно ширина и высота
         bullet = Bitmap.createScaledBitmap(bullet, width, height, false);
+    }
+
+    // метод задания прямоугольника вокруг астероида
+    public Rect getCollisionShape() {
+        // вывод квадрата с координатами краёв астероида
+        return new Rect(x, y, x + width, y + height);
     }
 
     // геттеры и сеттеры

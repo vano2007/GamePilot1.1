@@ -3,6 +3,7 @@ package com.example.gamepilot11.entity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 
 import com.example.gamepilot11.GameView;
 import com.example.gamepilot11.R;
@@ -104,6 +105,12 @@ public class Flight {
         return null;
     }
 
+    // метод задания прямоугольника вокруг самолёта
+    public Rect getCollisionShape() {
+        // вывод квадрата с координатами краёв астероида
+        return new Rect(x, y, x + width, y + height);
+    }
+
     // геттеры и сеттеры
     public int getX() {
         return x;
@@ -143,6 +150,21 @@ public class Flight {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+    public int getToShoot() {
+        return toShoot;
+    }
+
+    public void setToShoot(int toShoot) {
+        this.toShoot = toShoot;
+    }
+
+    public Bitmap getPlaneShotDown() {
+        return planeShotDown;
+    }
+
+    public void setPlaneShotDown(Bitmap planeShotDown) {
+        this.planeShotDown = planeShotDown;
     }
 
 }
