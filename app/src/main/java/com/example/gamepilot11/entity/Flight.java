@@ -48,8 +48,8 @@ public class Flight {
         height = flight1.getHeight() / 3;
 
         // приведение размера самолёта совместимым с другими экранами
-        width = (int)(width * 1920f / screenX);
-        height = (int)(height * 1080f / screenY);
+        width = (int)(width * screenX / 1920f );
+        height = (int)(height * screenY / 1080f);
 
         // изменение размера изображения самолёта, где width и height соответственно ширина и высота
         flight1 = Bitmap.createScaledBitmap(flight1, width, height, false);

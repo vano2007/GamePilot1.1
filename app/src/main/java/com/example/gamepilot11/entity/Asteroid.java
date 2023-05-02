@@ -31,8 +31,8 @@ public class Asteroid {
         height = asteroid1.getHeight() / 3;
 
         // приведение размера астероида совместимым с другими экранами
-        width = (int)(width * 1920f / screenX);
-        height = (int)(height * 1080f / screenY);
+        width = (int)(width * screenX / 1920f );
+        height = (int)(height * screenY / 1080f );
 
         // изменение размера изображения астероида, где width и height соответственно ширина и высота
         asteroid1 = Bitmap.createScaledBitmap(asteroid1, width, height, false);

@@ -1,11 +1,16 @@
 package com.example.gamepilot11;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 
@@ -39,10 +44,31 @@ public class GameView extends SurfaceView implements Runnable{
     private int sound; // целочисленная переменная для звука
 
     // конструктор на основе SurfaceView
-    public GameView(Context context, int screenX, int screenY) {
-        super(context);
-        this.screenX = screenX;
-        this.screenY = screenY;
+    public GameView(GameActivity activity, int screenX, int screenY) {
+        super(activity);
+        this.activity = activity;
+
+        // получение доступа к настройкам андроида
+        // MODE_PRIVATE – используется в большинстве случаев для приватного доступа к данным приложением-владельцем
+        preferences = activity.getSharedPreferences("game", Context.MODE_PRIVATE);
+
+        // если сборка проекта новая, то
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // 1 вариант настройки воспроизведения аудио
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .build();
+            // загрузка настроек
+            soundPool = new SoundPool.Builder()
+                    .setAudioAttributes(audioAttributes)
+                    .build();
+        }  else { // иначе если старая сборка, то
+            // 2 вариант настройки воспроизведения аудио
+            soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+        }
+        // загрузка нужного аудиофайла из папки res/raw
+        sound = soundPool.load(activity, R.raw.shoot, 1);
 
         screenRatioX = 1920f / screenX; // калибровка совместимости оси X
         screenRatioY = 1080f / screenY; // калибровка совместимости оси Y
@@ -55,6 +81,8 @@ public class GameView extends SurfaceView implements Runnable{
         background2.setX(screenX); // второй фон мы сдвигаем по оси Х с нуля на размер ширины изображения
 
         paint = new Paint(); // создание объекта стиля рисования
+        paint.setTextSize(128); // размер текста отображения на экране счёта игры
+        paint.setColor(Color.WHITE); // установление белого цвета текста
 
         // создание объекта самолёта
         flight = new Flight(this, screenX, screenY, getResources());
@@ -299,5 +327,27 @@ public class GameView extends SurfaceView implements Runnable{
         bullet.setY(flight.getY() + (flight.getHeight() / 2)); // координата Y (положения самолёта + половина высоты самолёта)
         // добавление объекта снаряда в список снарядов
         bulletList.add(bullet);
+    }
+    // метод определения рекордного результата
+    private void saveIfHighScore() {
+        // если количество сбитых астероидов больше рекордного, то
+        if (preferences.getInt("highscore", 0) < score) {
+            // сохраним рекордное значение
+            SharedPreferences.Editor editor = preferences.edit(); // изменение настроек
+            editor.putInt("highscore", score); // внесение нового рекордного значения
+            editor.apply(); // сохранение результатов
+        }
+    }
+    // метод считывания рекордного результата при загрузке приложения
+    private void waitBeforeExiting() {
+        // ввод вспомогательного потока в сон на 3 секунды
+        try {
+            Thread.sleep(3000);
+            // переход к основной активити
+            activity.startActivity(new Intent(activity, MainActivity.class));
+            activity.finish(); // закрытие данной активити
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
